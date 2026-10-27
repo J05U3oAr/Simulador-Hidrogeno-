@@ -1,6 +1,6 @@
 """Simulación cuasiestática de seguimiento de un recorrido prescrito."""
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 from simulador.capacitor import energy_j, voltage_v
 from simulador.config import Config
@@ -17,6 +17,7 @@ class Result:
     rows: list[dict]
     events: list[dict]
     summary: dict
+    inputs: dict
 
 
 def simulate(config: Config, route: list[Point], max_step_s: float = 1,
@@ -96,4 +97,6 @@ def simulate(config: Config, route: list[Point], max_step_s: float = 1,
         "shutdown_occurred": shutdown_at <= route[-1].time_s,
         "event_count": len(events),
     }
-    return Result(rows, sorted(events, key=lambda event: event["time_s"]), summary)
+    inputs = {"parameters": config.to_dict(), "route": [asdict(p) for p in route],
+              "max_step_s": max_step_s, "fault": asdict(fault or Fault())}
+    return Result(rows, sorted(events, key=lambda event: event["time_s"]), summary, inputs)
