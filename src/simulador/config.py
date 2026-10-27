@@ -120,11 +120,18 @@ SECTIONS = {
 
 
 def load_config(path: str | Path) -> tuple[Config, dict]:
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    return config_from_dict(json.loads(Path(path).read_text(encoding="utf-8-sig")))
+
+
+def config_from_dict(data: dict) -> tuple[Config, dict]:
+    if not isinstance(data, dict):
+        raise ValueError("La configuración debe ser un objeto JSON.")
     if set(data) != {"parameters", "provenance"}:
         raise ValueError("La configuración requiere parameters y provenance.")
-    if set(data["parameters"]) != set(SECTIONS):
+    if not isinstance(data["parameters"], dict) or set(data["parameters"]) != set(SECTIONS):
         raise ValueError("Las secciones de parámetros no coinciden con el modelo.")
+    if not isinstance(data["provenance"], dict):
+        raise ValueError("provenance debe ser un objeto JSON.")
     try:
         config = Config(**{name: cls(**data["parameters"][name]) for name, cls in SECTIONS.items()})
     except TypeError as exc:
@@ -133,7 +140,7 @@ def load_config(path: str | Path) -> tuple[Config, dict]:
         for field in fields(cls):
             key = f"{section}.{field.name}"
             entry = data["provenance"].get(key, {})
-            if not all(entry.get(item) for item in ("unit", "status", "source")):
+            if not isinstance(entry, dict) or not all(isinstance(entry.get(item), str) and entry[item].strip() for item in ("unit", "status", "source")):
                 raise ValueError(f"Falta unidad, estado o fuente de {key}.")
             if entry["status"] not in {"supuesto", "confirmado", "pendiente"}:
                 raise ValueError(f"Estado de procedencia inválido: {key}.")

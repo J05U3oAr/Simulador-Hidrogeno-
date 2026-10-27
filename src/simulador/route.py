@@ -4,6 +4,7 @@ import csv
 from dataclasses import dataclass
 from math import ceil, isfinite
 from pathlib import Path
+from io import StringIO
 
 
 @dataclass(frozen=True)
@@ -40,14 +41,17 @@ def validate_route(points: list[Point]):
 
 
 def load_route(path: str | Path) -> list[Point]:
-    with Path(path).open(encoding="utf-8-sig", newline="") as file:
-        reader = csv.DictReader(file)
-        if reader.fieldnames != ["time_s", "speed_kmh", "grade_percent"]:
-            raise ValueError("Columnas requeridas: time_s,speed_kmh,grade_percent (en ese orden).")
-        try:
-            points = [Point(**{key: float(value) for key, value in row.items()}) for row in reader]
-        except (TypeError, ValueError) as exc:
-            raise ValueError("El recorrido debe contener tres valores numéricos por fila.") from exc
+    return route_from_text(Path(path).read_text(encoding="utf-8-sig"))
+
+
+def route_from_text(text: str) -> list[Point]:
+    reader = csv.DictReader(StringIO(text))
+    if reader.fieldnames != ["time_s", "speed_kmh", "grade_percent"]:
+        raise ValueError("Columnas requeridas: time_s,speed_kmh,grade_percent (en ese orden).")
+    try:
+        points = [Point(**{key: float(value) for key, value in row.items()}) for row in reader]
+    except (TypeError, ValueError) as exc:
+        raise ValueError("El recorrido debe contener tres valores numéricos por fila.") from exc
     validate_route(points)
     return points
 
