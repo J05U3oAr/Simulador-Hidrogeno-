@@ -22,3 +22,12 @@ def test_empty_tank_and_depleted_bank_report_deficit(config):
     result = dispatch(config, 2000, mass, minimum, 1)
     assert result.unserved_power_w == pytest.approx(2000)
     assert result.hydrogen_used_kg == 0
+
+
+def test_partial_fuel_step_conserves_energy(config):
+    mass = mass_at_pressure(config.tank, config.tank.minimum_pressure_bar_abs) + 1e-7
+    stored = energy_j(config.capacitor, config.capacitor.initial_voltage_v)
+    result = dispatch(config, 2000, mass, stored, 5)
+    assert result.hydrogen_used_kg == pytest.approx(1e-7)
+    assert result.chemical_power_w * 5 + stored - result.capacitor_energy_j == pytest.approx(
+        (result.served_power_w + result.loss_power_w) * 5)

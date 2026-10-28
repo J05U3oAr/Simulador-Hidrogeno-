@@ -118,6 +118,19 @@ SECTIONS = {
     "capacitor": Capacitor, "bus": Bus, "protection": Protection,
 }
 
+UNIT_SUFFIXES = {
+    "kg_m3": "kg/m^3", "j_kg": "J/kg", "bar_abs": "bar absoluto",
+    "kg": "kg", "w": "W", "f": "F", "v": "V", "s": "s",
+    "m2": "m^2", "l": "L", "k": "K",
+}
+
+
+def parameter_unit(name: str) -> str:
+    for suffix in sorted(UNIT_SUFFIXES, key=len, reverse=True):
+        if name.endswith("_" + suffix):
+            return UNIT_SUFFIXES[suffix]
+    return "adimensional"
+
 
 def load_config(path: str | Path) -> tuple[Config, dict]:
     return config_from_dict(json.loads(Path(path).read_text(encoding="utf-8-sig")))
@@ -132,6 +145,10 @@ def config_from_dict(data: dict) -> tuple[Config, dict]:
         raise ValueError("Las secciones de parámetros no coinciden con el modelo.")
     if not isinstance(data["provenance"], dict):
         raise ValueError("provenance debe ser un objeto JSON.")
+    for name, cls in SECTIONS.items():
+        values = data["parameters"][name]
+        if not isinstance(values, dict) or set(values) != {field.name for field in fields(cls)}:
+            raise ValueError(f"{name}: proporcione todos los parámetros definidos en el ejemplo, sin claves adicionales.")
     try:
         config = Config(**{name: cls(**data["parameters"][name]) for name, cls in SECTIONS.items()})
     except TypeError as exc:
@@ -144,4 +161,6 @@ def config_from_dict(data: dict) -> tuple[Config, dict]:
                 raise ValueError(f"Falta unidad, estado o fuente de {key}.")
             if entry["status"] not in {"supuesto", "confirmado", "pendiente"}:
                 raise ValueError(f"Estado de procedencia inválido: {key}.")
+            if entry["unit"] != parameter_unit(field.name):
+                raise ValueError(f"{key}: la unidad requerida es {parameter_unit(field.name)}; no se convierten unidades automáticamente.")
     return config.validate(), data["provenance"]

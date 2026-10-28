@@ -51,162 +51,162 @@
     "vehicle.mass_kg": {
       "unit": "kg",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "vehicle.rolling_coefficient": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "vehicle.drag_coefficient": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "vehicle.frontal_area_m2": {
-      "unit": "m?",
+      "unit": "m^2",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "vehicle.air_density_kg_m3": {
-      "unit": "kg/m?",
+      "unit": "kg/m^3",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "vehicle.rotational_mass_factor": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "motor.efficiency": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "motor.controller_efficiency": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "motor.max_mechanical_power_w": {
       "unit": "W",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "fuel_cell.gross_power_w": {
       "unit": "W",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "fuel_cell.efficiency_lhv": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "fuel_cell.auxiliary_power_w": {
       "unit": "W",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "fuel_cell.hydrogen_lhv_j_kg": {
       "unit": "J/kg",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "tank.volume_l": {
       "unit": "L",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "tank.initial_pressure_bar_abs": {
       "unit": "bar absoluto",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "tank.minimum_pressure_bar_abs": {
       "unit": "bar absoluto",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "tank.temperature_k": {
       "unit": "K",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "tank.compressibility_factor": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "capacitor.capacitance_f": {
       "unit": "F",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "capacitor.minimum_voltage_v": {
       "unit": "V",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "capacitor.maximum_voltage_v": {
       "unit": "V",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "capacitor.initial_voltage_v": {
       "unit": "V",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "capacitor.max_charge_power_w": {
       "unit": "W",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "capacitor.max_discharge_power_w": {
       "unit": "W",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "capacitor.charge_efficiency": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "capacitor.discharge_efficiency": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "bus.fuel_cell_converter_efficiency": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "bus.auxiliary_converter_efficiency": {
       "unit": "adimensional",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "bus.auxiliary_load_w": {
       "unit": "W",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "bus.capacitor_recharge_power_w": {
       "unit": "W",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "protection.detection_delay_s": {
       "unit": "s",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     },
     "protection.shutdown_delay_s": {
       "unit": "s",
       "status": "supuesto",
-      "source": "Ejemplo educativo; reemplazar con ficha t?cnica o medici?n. No identifica un componente comercial."
+      "source": "Ejemplo educativo; reemplazar con ficha técnica o medición. No identifica un componente comercial."
     }
   }
 }

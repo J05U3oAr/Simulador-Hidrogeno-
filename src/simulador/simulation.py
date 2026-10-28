@@ -7,7 +7,7 @@ from simulador.config import Config
 from simulador.motor import electrical_demand
 from simulador.powertrain import dispatch
 from simulador.protection import Fault
-from simulador.route import Point, intervals
+from simulador.route import Point, intervals, validate_route
 from simulador.tank import mass_at_pressure, pressure_at_mass
 from simulador.vehicle import mechanical_demand
 
@@ -23,7 +23,6 @@ class Result:
 def simulate(config: Config, route: list[Point], max_step_s: float = 1,
              fault: Fault | None = None) -> Result:
     config.validate()
-    from simulador.route import validate_route
     validate_route(route)
     schedule = (fault or Fault()).schedule(config.protection, route[-1].time_s)
     shutdown_at = next((event["time_s"] for event in schedule if event["code"] == "shutdown"), float("inf"))
@@ -45,7 +44,7 @@ def simulate(config: Config, route: list[Point], max_step_s: float = 1,
         enabled = interval.start_s < shutdown_at
         step = dispatch(config, load, mass, stored, dt, enabled=enabled)
         mass, stored = step.hydrogen_mass_kg, step.capacitor_energy_j
-        missing = step.unserved_power_w + requested - load
+        missing = max(0.0, step.unserved_power_w + requested - load)
         flags = set()
         if enabled and motor.unserved_mechanical_power_w > 1e-6:
             flags.add("motor_power_limit")

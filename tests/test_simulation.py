@@ -26,6 +26,15 @@ def test_motor_limit_marks_target_infeasible(config):
     assert result.summary["unserved_energy_wh"] > 0
 
 
+def test_time_refinement_converges_for_acceleration(config):
+    route = [Point(0, 0, 0), Point(30, 36, 0), Point(60, 36, 0)]
+    coarse = simulate(config, route, 1).summary["requested_energy_wh"]
+    fine = simulate(config, route, 0.5).summary["requested_energy_wh"]
+    finer = simulate(config, route, 0.25).summary["requested_energy_wh"]
+    assert abs(finer - fine) < abs(fine - coarse)
+    assert finer == pytest.approx(fine, rel=1e-4)
+
+
 @pytest.mark.parametrize("points", [[], [Point(1, 0, 0), Point(2, 0, 0)],
     [Point(0, 0, 0), Point(0, 1, 0)], [Point(0, 0, 0), Point(1, float('nan'), 0)]])
 def test_invalid_routes_are_rejected(points):

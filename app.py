@@ -8,6 +8,7 @@ import pandas as pd
 import streamlit as st
 
 from simulador.config import load_config
+from simulador.comparison import compare
 from simulador.protection import Fault
 from simulador.reporting import csv_text, plot_png
 from simulador.route import Point, load_route
@@ -61,6 +62,7 @@ if submitted:
         fault = Fault(kind, fault_time if kind != "none" else 0)
         result = simulate(config, route, step, fault)
         st.session_state["simulation"] = (result, provenance)
+        st.session_state.pop("comparison", None)
         st.session_state.pop("simulation_error", None)
     except (ValueError, TypeError, KeyError, UnicodeError) as exc:
         st.session_state["simulation_error"] = str(exc)
@@ -84,7 +86,7 @@ else:
     metrics[0].metric("Distancia objetivo [km]", f"{summary['distance_target_km']:.2f}")
     metrics[1].metric("Hidrógeno consumido [g]", f"{summary['hydrogen_used_kg'] * 1000:.2f}")
     metrics[2].metric("Energía no cubierta [Wh]", f"{summary['unserved_energy_wh']:.3f}")
-    charts, events, inputs, downloads = st.tabs(["Energía y recorrido", "Eventos", "Datos usados", "Descargas"])
+    charts, events, inputs, sensitivity, downloads = st.tabs(["Energía y recorrido", "Eventos", "Datos usados", "Comparación", "Descargas"])
     frame = pd.DataFrame(result.rows).set_index("time_s")
     with charts:
         st.subheader("Balance de potencia del bus [W]")
@@ -113,3 +115,16 @@ else:
         report = {"summary": summary, "inputs": result.inputs, "provenance": used_provenance, "model_version": "0.1.0"}
         st.download_button("Descargar informe JSON", json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False), "report.json", "application/json")
         st.download_button("Descargar gráficas PNG", plot_png(result), "plots.png", "image/png")
+    with sensitivity:
+        st.write("Compara masa, potencia neta de la celda y capacitancia con variaciones de ±20%, cambiando un factor a la vez.")
+        st.caption("Conserva el recorrido, los demás parámetros y el fallo de la última ejecución. No representa intervalos de confianza.")
+        if st.button("Comparar configuraciones"):
+            from simulador.config import config_from_dict
+            saved_config, _ = config_from_dict({"parameters": result.inputs["parameters"], "provenance": used_provenance})
+            saved_route = [Point(**point) for point in result.inputs["route"]]
+            st.session_state["comparison"] = compare(saved_config, saved_route,
+                result.inputs["max_step_s"], Fault(**result.inputs["fault"]))
+        if "comparison" in st.session_state:
+            comparison = st.session_state["comparison"]
+            st.dataframe(pd.DataFrame(comparison), hide_index=True)
+            st.download_button("Descargar comparación CSV", csv_text(comparison).encode("utf-8-sig"), "comparison.csv", "text/csv")
