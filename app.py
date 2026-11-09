@@ -11,6 +11,7 @@ from simulador.config import load_config
 from simulador.comparison import compare
 from simulador.cylinder import CylinderReference
 from simulador.dashboard import render_cylinder_preview, render_metrics, render_visual
+from simulador.interactive_lab import render_laboratory
 from simulador.protection import Fault
 from simulador.reporting import csv_text, plot_png
 from simulador.route import Point, load_route
@@ -19,10 +20,15 @@ from simulador.simulation import simulate
 ROOT = Path(__file__).resolve().parent
 st.set_page_config(page_title="Simulador de hidrógeno", layout="wide")
 st.title("Simulador de hidrógeno")
+workspace = st.radio("Espacio de trabajo", ["Laboratorio interactivo", "Recorrido y métricas"], horizontal=True, key="workspace")
+config, provenance = load_config(ROOT / "data/example.json")
+if workspace == "Laboratorio interactivo":
+    render_laboratory(config)
+    st.stop()
+
 st.write("Explora la demanda del vehículo, el consumo de la celda PEM y el aporte del banco de supercapacitores.")
 st.warning("Dimensionamiento preliminar con datos de ejemplo. Las estimaciones no validan la seguridad del vehículo.")
 
-config, provenance = load_config(ROOT / "data/example.json")
 with st.sidebar:
     st.header("Preparar escenario")
     with st.form("scenario"):

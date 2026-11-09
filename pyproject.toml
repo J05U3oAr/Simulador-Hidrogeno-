@@ -18,6 +18,9 @@ simular-hidrogeno = "simulador.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+simulador = ["lab_assets/*.html", "lab_assets/*.css", "lab_assets/*.js"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

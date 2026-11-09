@@ -22,13 +22,70 @@ Desde la raíz del repositorio:
 .\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1
 ```
 
-Abre `http://127.0.0.1:8501`, configura el escenario y pulsa **Ejecutar
-simulación**. Las pestañas muestran el simulador visual, métricas y tablas,
+Abre `http://127.0.0.1:8501`. La vista inicial es **Laboratorio interactivo**:
+puedes manipular el cilindro directamente, sin cargar JSON ni ejecutar antes un
+recorrido. Para el modelo del vehículo, selecciona **Recorrido y métricas**,
+configura el escenario y pulsa **Ejecutar simulación**.
+Sus pestañas muestran el simulador visual, métricas y tablas,
 energía, eventos, parámetros usados, comparación y descargas. El formulario
 aplica masa, potencia PEM y los campos del cilindro que rellenes sobre el JSON
 cargado; los demás parámetros se conservan. Los archivos subidos se leen
 en memoria. Para editar todos los parámetros, copia `data/example.json` y
 mantén el formato de unidades y procedencia.
+
+### Laboratorio interactivo
+
+El laboratorio tiene una escena Canvas con partículas en movimiento, manómetro,
+termómetro y salida hacia la PEM. Su interacción se inspira en la exploración
+directa de [PhET](https://phet.colorado.edu/es/simulations/models-of-the-hydrogen-atom),
+con una implementación propia sin copiar código ni imágenes. Aquí se representa
+hidrógeno **molecular en un cilindro**, no un modelo del átomo.
+
+- Mueve **Temperatura** o **Volumen interno**: la masa se conserva y la presión
+  responde inmediatamente mediante `pV = ZmRT`. No hace falta pulsar Ejecutar.
+- Pulsa **Abrir salida** sobre la escena o en el panel para consumir H₂ con el
+  caudal solicitado. El inventario y la presión disminuyen; la extracción se
+  detiene al alcanzar la reserva. El caudal es una entrada de este experimento;
+  el laboratorio no calcula la demanda del vehículo ni la potencia PEM.
+- **Pausar**, **Paso +1 s** y el ritmo **1× / 10× / 30×** controlan el tiempo.
+  El movimiento molecular es ilustrativo y su rapidez visual depende de la
+  temperatura. Se inicia en pausa si el sistema solicita movimiento reducido.
+- Cambiar **Presión de carga** o pulsar **Recargar** comienza una serie nueva,
+  conservando la temperatura y volumen actuales y cerrando la salida.
+  **Reiniciar todo** restaura los datos de ejemplo y elimina las referencias.
+- **Aislar salida** interrumpe el suministro inmediatamente por acción manual;
+  **Rearmar salida** habilita volver a abrirla. No representa el retardo de
+  detección/apagado del modelo de recorrido.
+- Activa o desactiva partículas, corte y direcciones de movimiento en **Mostrar**.
+- En **Referencias y modelo**, introduce tus límites de presión y temperatura,
+  reserva y Z. Los rangos de los controles son rangos de exploración, no límites
+  admisibles del cilindro. Sin referencias completas no se asigna estado verde.
+- **Mediciones** muestra gráfica y tabla. **Descargar CSV** conserva las últimas
+  5000 muestras, incluyendo tiempo, presión absoluta, temperatura, volumen, masa,
+  caudal efectivo y motivo del cambio. Los cambios manuales de T o V pueden
+  producir varias muestras en el mismo instante.
+
+Los cambios de T y V son impuestos: no se calcula calor, trabajo, termodinámica
+de descarga ni integridad estructural. Z permanece constante salvo edición
+manual. No se crea gas para recuperar la reserva si un cambio de T/V deja el
+estado por debajo de ella. El manómetro usa como escala la máxima de referencia
+o el doble de la presión de carga; las lecturas numéricas conservan el valor
+aunque la aguja llegue al tope.
+
+La exploración se reinicia al recargar la página o cambiar de espacio de trabajo;
+exporta las mediciones antes. No modifica los parámetros del modelo de recorrido.
+**Descargar laboratorio para abrir sin conexión** genera un HTML autónomo con
+los valores iniciales de ejemplo, sin CDN ni peticiones de red.
+
+El motor Python y el laboratorio JavaScript se comprueban con:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+node --test tests/test_lab.cjs
+```
+
+Node.js solo se usa para estas comprobaciones, no para ejecutar el laboratorio.
+Sin Node, pytest omite las comprobaciones de JavaScript e inventario cruzado.
 
 ### Explorar la simulación visual
 

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laboratorio del cilindro de hidrógeno</title><style>__LAB_CSS__</style></head>
+<body>
+<main class="lab" aria-label="Laboratorio interactivo del cilindro de hidrógeno">
+  <header class="topbar"><div class="identity"><b class="logo">H₂</b><div><h1>Laboratorio del cilindro</h1><p>Explora · cambia · observa</p></div></div>
+    <nav aria-label="Vistas del laboratorio"><button id="explore-tab" aria-pressed="true">Explorar</button><button id="measure-tab" aria-pressed="false">Mediciones</button></nav>
+  </header>
+  <div class="workspace">
+    <section class="experiment" aria-label="Zona de experimentación">
+      <div class="scene-header"><span class="eyebrow">GAS COMPRIMIDO · MODELO pV = ZmRT</span><span id="state-badge" class="badge" role="status">Sin límites de referencia</span></div>
+      <div id="exploration">
+        <div class="canvas-wrap"><canvas id="scene" width="1000" height="560" role="img" aria-label="Cilindro de H₂, moléculas en movimiento, manómetro y salida hacia la PEM">Tu navegador no admite Canvas. Consulta las lecturas y mediciones debajo.</canvas>
+          <button id="valve-on-scene" class="valve-target" aria-label="Abrir salida del cilindro" aria-pressed="false">Abrir salida</button>
+          <span class="scene-hint">Toca la salida o mueve un control del panel</span>
+        </div>
+        <div class="readings" aria-label="Instrumentos"><div><span>Presión absoluta</span><strong id="pressure-reading">—</strong></div><div><span>Temperatura</span><strong id="temperature-reading">—</strong></div><div><span>H₂ restante</span><strong id="mass-reading">—</strong></div><div><span>Caudal efectivo</span><strong id="flow-reading">—</strong></div></div>
+        <p id="status-detail" class="explanation"></p>
+      </div>
+      <section id="measurements" hidden aria-label="Mediciones del laboratorio">
+        <div class="measurement-heading"><div><h2>¿Cómo cambia la presión?</h2><p>Temperatura y volumen actúan sobre el gas que queda.</p></div><button id="export-csv">Descargar CSV</button></div>
+        <canvas id="chart" width="1000" height="320" role="img" aria-label="Presión absoluta frente al tiempo de exploración. Valores disponibles en la tabla."></canvas>
+        <div class="table-wrap"><table><caption id="table-caption">Últimas mediciones</caption><thead><tr><th>Tiempo [s]</th><th>Presión [bar abs.]</th><th>T [°C]</th><th>V [L]</th><th>H₂ [g]</th><th>Cambio</th></tr></thead><tbody id="table-body"></tbody></table></div>
+        <p class="small">Se conservan las últimas 5000 muestras. Cambiar T o V registra un cambio instantáneo; recargar inicia una serie nueva.</p>
+      </section>
+      <footer class="transport"><div class="playback"><button id="play" class="primary" aria-label="Pausar simulación">Pausar</button><button id="step" title="Avanzar 1 segundo estando en pausa" disabled>Paso +1 s</button><label>Ritmo <select id="rate"><option value="1">1×</option><option value="10">10×</option><option value="30">30×</option></select></label></div><output id="clock">0.0 s</output><button id="reset" class="reset">Reiniciar todo</button></footer>
+    </section>
+    <aside class="controls" aria-label="Controles del experimento">
+      <section><h2>Prueba y observa</h2><p class="small">Cambia la temperatura o el volumen. La presión responde al instante con la misma masa de gas.</p>
+        <label class="control-title" for="temperature">Temperatura <output id="temperature-value"></output></label><input id="temperature" type="range" min="-100" max="150" step="1"><div class="endpoints"><span>Frío</span><span>Caliente</span></div>
+        <label class="control-title" for="volume">Volumen interno <output id="volume-value"></output></label><input id="volume" type="range" min="1" max="30" step="0.5"><div class="endpoints"><span>Comprimir</span><span>Expandir</span></div>
+      </section>
+      <section><h2>Carga y consumo</h2><label class="control-title" for="charge">Presión de carga <output id="charge-value"></output></label><input id="charge" type="range" min="20" max="400" step="1"><p class="small">Cambiar la carga recarga el cilindro y reinicia el tiempo.</p>
+        <label class="control-title" for="flow">Caudal solicitado <output id="flow-value"></output></label><input id="flow" type="range" min="0" max="0.2" step="0.005" value="0.02">
+        <div class="button-pair"><button id="valve" aria-pressed="false">Abrir salida</button><button id="refill">Recargar</button></div><button id="isolate" class="danger">Aislar salida</button>
+      </section>
+      <section class="display-options"><h2>Mostrar</h2><label><input id="particles" type="checkbox" checked> Moléculas de H₂</label><label><input id="cutaway" type="checkbox" checked> Corte del cilindro</label><label><input id="vectors" type="checkbox"> Dirección de movimiento</label></section>
+      <details><summary>Referencias y modelo</summary><p class="small">Sin referencias no se asigna un estado verde. Los valores de los controles son rangos de exploración, no límites admisibles.</p>
+        <label for="max-pressure">Presión máxima [bar absolutos]</label><input id="max-pressure" type="number" min="0.001" step="1" placeholder="Sin referencia">
+        <label for="min-temperature">Temperatura mínima [°C]</label><input id="min-temperature" type="number" min="-273.14" step="1" placeholder="Sin referencia">
+        <label for="max-temperature">Temperatura máxima [°C]</label><input id="max-temperature" type="number" min="-273.14" step="1" placeholder="Sin referencia">
+        <label for="reserve">Reserva [bar absolutos]</label><input id="reserve" type="number" min="0" step="1">
+        <label for="z-factor">Factor de compresibilidad Z</label><input id="z-factor" type="number" min="0.001" step="0.01">
+        <p id="model-error" class="error" role="alert" hidden></p>
+      </details>
+    </aside>
+  </div>
+  <p class="model-note"><strong>Modelo educativo.</strong> pV = ZmRT con Z constante. T y V son cambios impuestos por el usuario; no se calcula el calor ni el trabajo necesarios. Partículas, dimensiones y válvula ilustrativas. No evalúa daños, fugas ni certifica el cilindro.</p>
+  <p class="small credit">Interfaz propia inspirada en la exploración directa de <a href="https://phet.colorado.edu/es/simulations/models-of-the-hydrogen-atom" target="_blank" rel="noopener noreferrer">PhET</a>. Este laboratorio representa un cilindro de H₂ molecular; no simula el átomo ni utiliza código o imágenes de PhET.</p>
+</main>
+<script>const LAB_DEFAULTS = __LAB_BOOTSTRAP__;
+__LAB_PHYSICS__
+__LAB_JS__
+</script></body></html>

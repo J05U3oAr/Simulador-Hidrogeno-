@@ -3,8 +3,22 @@ from streamlit.testing.v1 import AppTest
 from conftest import ROOT
 
 
-def test_app_runs_default_scenario_and_reports_bad_parameters():
+def route_app():
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+    app.radio(key="workspace").set_value("Recorrido y métricas").run()
+    return app
+
+
+def test_interactive_lab_is_the_default_workspace():
+    app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+    assert not app.exception
+    assert app.radio(key="workspace").value == "Laboratorio interactivo"
+    assert "Laboratorio del cilindro" in app.get("iframe")[0].proto.srcdoc
+    assert not app.sidebar.number_input
+
+
+def test_app_runs_default_scenario_and_reports_bad_parameters():
+    app = route_app()
     assert not app.exception
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
     assert not app.exception
@@ -18,7 +32,7 @@ def test_app_runs_default_scenario_and_reports_bad_parameters():
 
 
 def test_comparison_uses_last_executed_scenario():
-    app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+    app = route_app()
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
     next(button for button in app.button if button.label == "Comparar configuraciones").click().run()
     assert not app.exception
@@ -26,7 +40,7 @@ def test_comparison_uses_last_executed_scenario():
 
 
 def test_visual_navigation_tables_and_reset_on_new_run():
-    app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+    app = route_app()
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
     assert [tab.label for tab in app.tabs][:2] == ["Simulador visual", "Métricas y tablas"]
     app.selectbox(key="visual_stride").set_value(5).run()
@@ -52,7 +66,7 @@ def test_visual_navigation_tables_and_reset_on_new_run():
 
 
 def test_playback_advances_pauses_and_stops_at_end():
-    app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+    app = route_app()
     next(box for box in app.selectbox if box.label == "Recorrido").set_value("Velocidad constante")
     next(field for field in app.number_input if field.label == "Duración a velocidad constante [s]").set_value(3)
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
@@ -76,7 +90,7 @@ def test_playback_advances_pauses_and_stops_at_end():
 
 
 def test_cylinder_inputs_drive_scene_and_are_saved_with_provenance():
-    app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+    app = route_app()
     assert any("Cilindro de hidrógeno animado" in element.proto.body for element in app.get("html"))
     app.number_input(key="tank_volume").set_value(12)
     app.number_input(key="tank_pressure").set_value(150)
