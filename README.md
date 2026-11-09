@@ -23,11 +23,43 @@ Desde la raíz del repositorio:
 ```
 
 Abre `http://127.0.0.1:8501`, configura el escenario y pulsa **Ejecutar
-simulación**. Las pestañas muestran energía, eventos, parámetros usados,
-comparación y descargas. El formulario aplica masa y potencia PEM sobre el
-JSON cargado; los demás parámetros se conservan. Los archivos subidos se leen
+simulación**. Las pestañas muestran el simulador visual, métricas y tablas,
+energía, eventos, parámetros usados, comparación y descargas. El formulario
+aplica masa y potencia PEM sobre el JSON cargado; los demás parámetros se conservan. Los archivos subidos se leen
 en memoria. Para editar todos los parámetros, copia `data/example.json` y
 mantén el formato de unidades y procedencia.
+
+### Explorar la simulación visual
+
+En **Simulador visual** puedes ver el tanque, la celda PEM, el bus eléctrico,
+el banco de supercapacitores y las cargas del vehículo. Las flechas muestran el
+sentido del intercambio: el banco aporta al bus al descargar y recibe del bus
+al cargar. Las líneas discontinuas indican que no hay intercambio. El esquema
+también indica déficit, aislamiento del bus y el último evento registrado hasta
+el instante seleccionado. En pantallas pequeñas se presenta un esquema textual.
+
+- Usa **Intervalo del recorrido**, **Anterior**, **Siguiente** o **Volver al inicio**
+  para inspeccionar los resultados.
+- Activa **Reproducir recorrido** para avanzar automáticamente; desactívalo para
+  pausar. **Intervalos por avance** permite recorrer más rápido las ejecuciones
+  largas. Se actualiza cada medio segundo, sin representar tiempo real, y se
+  detiene al final.
+- Las potencias son promedios del intervalo indicado y el almacenamiento es el
+  valor al final. Un apagado en la frontera final afecta al siguiente intervalo.
+- El porcentaje del tanque representa el hidrógeno sobre la reserva, relativo
+  al inventario utilizable inicial. El del banco representa energía utilizable
+  entre sus tensiones mínima y máxima, calculada con el cuadrado de la tensión.
+
+En **Métricas y tablas** encontrarás el resumen de la ejecución completa y la
+serie temporal agrupada en **Recorrido**, **Potencia** y **Almacenamiento**.
+Selecciona un rango de tiempo para consultar o descargar únicamente esas filas
+con **Descargar tabla filtrada CSV**. Los tiempos corresponden al final de cada
+intervalo; el resumen siempre corresponde a toda la ejecución.
+
+Ambas vistas usan la última simulación ejecutada. Al ejecutar otro escenario,
+el cursor visual y el rango de la tabla se reinician. La velocidad y distancia
+mostradas siguen siendo **objetivos del recorrido**, incluso ante déficit o
+apagado; el dibujo no representa movimiento real calculado ni regeneración.
 
 ### Qué rellenar en la interfaz
 
