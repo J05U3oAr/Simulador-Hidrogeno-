@@ -9,6 +9,7 @@ import streamlit as st
 
 from simulador.config import load_config
 from simulador.comparison import compare
+from simulador.dashboard import render_metrics, render_visual
 from simulador.protection import Fault
 from simulador.reporting import csv_text, plot_png
 from simulador.route import Point, load_route
@@ -64,6 +65,8 @@ if submitted:
         st.session_state["simulation"] = (result, provenance)
         st.session_state.pop("comparison", None)
         st.session_state.pop("simulation_error", None)
+        for key in ("visual_index", "visual_playing", "visual_next_index", "visual_finished", "table_time_range"):
+            st.session_state.pop(key, None)
     except (ValueError, TypeError, KeyError, UnicodeError) as exc:
         st.session_state["simulation_error"] = str(exc)
         st.session_state.pop("simulation", None)
@@ -86,8 +89,13 @@ else:
     metrics[0].metric("Distancia objetivo [km]", f"{summary['distance_target_km']:.2f}")
     metrics[1].metric("Hidrógeno consumido [g]", f"{summary['hydrogen_used_kg'] * 1000:.2f}")
     metrics[2].metric("Energía no cubierta [Wh]", f"{summary['unserved_energy_wh']:.3f}")
-    charts, events, inputs, sensitivity, downloads = st.tabs(["Energía y recorrido", "Eventos", "Datos usados", "Comparación", "Descargas"])
+    visual, metrics_tab, charts, events, inputs, sensitivity, downloads = st.tabs([
+        "Simulador visual", "Métricas y tablas", "Energía y recorrido", "Eventos", "Datos usados", "Comparación", "Descargas"])
     frame = pd.DataFrame(result.rows).set_index("time_s")
+    with visual:
+        render_visual(result)
+    with metrics_tab:
+        render_metrics(result)
     with charts:
         st.subheader("Balance de potencia del bus [W]")
         st.caption("Banco: positivo al descargar, negativo al cargar. Potencias promedio por intervalo.")
