@@ -2,13 +2,36 @@
 
 import streamlit as st
 
+from simulador.config import Config, Tank
+from simulador.cylinder import CylinderReference, cylinder_scene, initial_cylinder_row
 from simulador.simulation import Result
 from simulador.visualization import SERIES_GROUPS, energy_diagram, series_table, summary_table
 
 
+def render_cylinder_preview(config: Config):
+    st.subheader("Cilindro de hidrógeno · vista inicial")
+    st.caption("Vista de ejemplo antes de ejecutar. Introduce los datos y referencias del cilindro en la barra lateral y pulsa «Ejecutar simulación» para aplicarlos.")
+    animate = st.toggle("Animar partículas y flujo", value=True, key="cylinder_motion")
+    st.html(cylinder_scene(config.tank, initial_cylinder_row(config.tank), CylinderReference(), animate=animate))
+
+
 def render_visual(result: Result):
-    st.subheader("Explora el sistema paso a paso")
-    st.caption("Recorre los intervalos calculados para ver cómo se reparte la energía. La reproducción es didáctica; no transcurre en tiempo real.")
+    st.subheader("Cilindro animado y funcionamiento del sistema")
+
+    def reset_cursor():
+        st.session_state["visual_index"] = 0
+        st.session_state["visual_playing"] = False
+        st.session_state.pop("visual_next_index", None)
+        st.session_state.pop("visual_finished", None)
+
+    scene = st.radio("Vista del simulador", ["Cilindro animado", "Flujo de energía"], horizontal=True,
+                     key="visual_scene", on_change=reset_cursor)
+    animate = st.toggle("Animar partículas y flujo", value=True, key="cylinder_motion", disabled=scene != "Cilindro animado")
+    tank = Tank(**result.inputs["parameters"]["tank"])
+    initial = dict(result.rows[0], **initial_cylinder_row(tank), dt_s=0.0,
+                   distance_target_km=0.0, chemical_power_w=0.0)
+    samples = [initial, *result.rows] if scene == "Cilindro animado" else result.rows
+    st.caption("Recorre los intervalos calculados para observar el consumo de H₂. La reproducción es didáctica; no transcurre en tiempo real.")
     if st.session_state.pop("visual_finished", False):
         st.session_state["visual_playing"] = False
     controls = st.columns(2)
@@ -17,11 +40,11 @@ def render_visual(result: Result):
 
     def move_cursor(offset):
         current = st.session_state.get("visual_index", 0)
-        st.session_state["visual_index"] = 0 if offset is None else max(0, min(len(result.rows) - 1, current + offset))
+        st.session_state["visual_index"] = 0 if offset is None else max(0, min(len(samples) - 1, current + offset))
 
     @st.fragment(run_every=0.5 if playing else None)
     def player():
-        last = len(result.rows) - 1
+        last = len(samples) - 1
         pending = st.session_state.pop("visual_next_index", None)
         current = min(pending if playing and pending is not None else st.session_state.get("visual_index", 0), last)
         st.session_state["visual_index"] = current
@@ -34,14 +57,25 @@ def render_visual(result: Result):
                              on_click=move_cursor, args=(stride,))
         if last:
             current = st.slider("Intervalo del recorrido", 0, last, key="visual_index", disabled=playing)
-        row = result.rows[current]
-        st.caption(f"Intervalo {current + 1} de {last + 1} · {row['time_s'] - row['dt_s']:.2f} a {row['time_s']:.2f} s. "
-                   "Potencias promedio del intervalo; almacenamiento al final.")
-        st.html(energy_diagram(result, row))
+        row = samples[current]
+        if row["dt_s"] == 0:
+            st.caption("Estado inicial · 0 s. Valores del cilindro al comenzar la ejecución.")
+        else:
+            st.caption(f"Muestra {current + 1} de {last + 1} · {row['time_s'] - row['dt_s']:.2f} a {row['time_s']:.2f} s. "
+                       "Potencias promedio del intervalo; almacenamiento al final.")
+        if scene == "Cilindro animado":
+            reference = CylinderReference(**result.inputs.get("cylinder_reference", {}))
+            alarm = any(event["code"] == "alarm" and event["time_s"] <= row["time_s"] for event in result.events)
+            isolated = any(event["code"] == "shutdown" and event["time_s"] <= row["time_s"] for event in result.events)
+            sample = dict(row, hydrogen_flow_g_s=row["chemical_power_w"]
+                          / result.inputs["parameters"]["fuel_cell"]["hydrogen_lhv_j_kg"] * 1000)
+            st.html(cylinder_scene(tank, sample, reference, alarm, isolated, animate))
+        else:
+            st.html(energy_diagram(result, row))
+            st.caption("Las flechas indican el sentido del flujo; las líneas discontinuas indican que no hay intercambio. "
+                       "La carga del banco proviene de la PEM; el modelo no recupera energía del frenado.")
         st.progress(min(1.0, row["time_s"] / result.summary["duration_s"]),
                     text=f"Recorrido objetivo: {row['distance_target_km']:.3f} / {result.summary['distance_target_km']:.3f} km")
-        st.caption("Las flechas indican el sentido del flujo; las líneas discontinuas indican que no hay intercambio. "
-                   "La carga del banco proviene de la PEM; el modelo no recupera energía del frenado.")
         # El estado pertenece al intervalo que acaba de terminar: un evento en su
         # frontera final afecta al siguiente intervalo, como en el motor físico.
         visible_events = [event for event in result.events if event["time_s"] <= row["time_s"]]

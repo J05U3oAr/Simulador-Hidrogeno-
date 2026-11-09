@@ -43,6 +43,7 @@ def test_visual_navigation_tables_and_reset_on_new_run():
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
     assert not app.exception
     assert app.session_state["visual_index"] == 0
+    app.slider(key="visual_index").set_value(1).run()
     assert app.button(key="visual_next").disabled
     assert not any(slider.key == "table_time_range" for slider in app.slider)
     app.toggle(key="visual_playing").set_value(True).run()
@@ -65,9 +66,42 @@ def test_playback_advances_pauses_and_stops_at_end():
     assert app.session_state["visual_index"] == 1
     app.toggle(key="visual_playing").set_value(True).run()
     app.run()
+    app.run()
     assert not app.exception
-    assert app.session_state["visual_index"] == 2
+    assert app.session_state["visual_index"] == 3
     assert app.session_state["visual_playing"] is False
     assert app.session_state["simulation"][0].rows == original_rows
     app.button(key="visual_restart").click().run()
     assert app.session_state["visual_index"] == 0
+
+
+def test_cylinder_inputs_drive_scene_and_are_saved_with_provenance():
+    app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+    assert any("Cilindro de hidrógeno animado" in element.proto.body for element in app.get("html"))
+    app.number_input(key="tank_volume").set_value(12)
+    app.number_input(key="tank_pressure").set_value(150)
+    app.number_input(key="tank_reserve").set_value(15)
+    app.number_input(key="tank_temperature").set_value(40)
+    app.number_input(key="cylinder_pressure_limit").set_value(200)
+    app.number_input(key="cylinder_temperature_min").set_value(10)
+    app.number_input(key="cylinder_temperature_max").set_value(50)
+    next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
+    assert not app.exception
+    result, provenance = app.session_state["simulation"]
+    tank = result.inputs["parameters"]["tank"]
+    assert tank["temperature_k"] == 313.15
+    assert tank["volume_l"] == 12
+    assert tank["initial_pressure_bar_abs"] == 150
+    assert tank["minimum_pressure_bar_abs"] == 15
+    assert provenance["tank.temperature_k"]["unit"] == "K"
+    assert provenance["tank.temperature_k"]["source"].startswith("Valor introducido")
+    assert result.inputs["cylinder_reference"]["maximum_pressure_bar_abs"] == 200
+    assert any('data-state="within"' in element.proto.body and "150.00 bar" in element.proto.body for element in app.get("html"))
+    app.number_input(key="tank_temperature").set_value(60)
+    next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
+    assert not app.exception
+    assert any('data-state="outside"' in element.proto.body for element in app.get("html"))
+    app.number_input(key="cylinder_temperature_min").set_value(70)
+    next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
+    assert not app.exception
+    assert any("mínima de referencia" in error.value for error in app.error)

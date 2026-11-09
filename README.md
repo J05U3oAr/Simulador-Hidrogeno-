@@ -25,13 +25,54 @@ Desde la raíz del repositorio:
 Abre `http://127.0.0.1:8501`, configura el escenario y pulsa **Ejecutar
 simulación**. Las pestañas muestran el simulador visual, métricas y tablas,
 energía, eventos, parámetros usados, comparación y descargas. El formulario
-aplica masa y potencia PEM sobre el JSON cargado; los demás parámetros se conservan. Los archivos subidos se leen
+aplica masa, potencia PEM y los campos del cilindro que rellenes sobre el JSON
+cargado; los demás parámetros se conservan. Los archivos subidos se leen
 en memoria. Para editar todos los parámetros, copia `data/example.json` y
 mantén el formato de unidades y procedencia.
 
 ### Explorar la simulación visual
 
-En **Simulador visual** puedes ver el tanque, la celda PEM, el bus eléctrico,
+La vista principal es **Cilindro animado**: un cilindro en corte con partículas
+de gas en todo su volumen, manómetro, salida ilustrativa y conducto hacia la PEM.
+Se muestra una vista inicial de ejemplo incluso antes de ejecutar un escenario.
+Después de ejecutar, puedes observar el estado inicial en `0 s` y reproducir
+el consumo calculado durante el recorrido. **Animar partículas y flujo** permite
+detener el movimiento ilustrativo sin cambiar los datos ni la reproducción
+temporal. También respeta la preferencia de movimiento reducido del sistema.
+
+En la barra lateral, abre **Datos del cilindro** e introduce volumen, presión
+inicial, presión de reserva y temperatura. Los campos vacíos conservan los datos
+del JSON cargado o del ejemplo; los campos rellenados los sustituyen al pulsar
+**Ejecutar simulación**. La temperatura se introduce en °C y se convierte a K
+para el modelo y el informe. El factor de compresibilidad continúa viniendo del
+JSON. El modelo mantiene la temperatura constante durante la descarga.
+
+En **Límites de referencia del cilindro**, puedes introducir presión máxima y
+temperaturas mínima y máxima de la ficha técnica. Todas las presiones se expresan
+en **bar absolutos**; convierte primero si tu ficha indica presión manométrica.
+No hay límites admisibles predeterminados. El contorno y la etiqueta muestran:
+
+- **Azul:** sin referencias o referencias incompletas.
+- **Verde:** presión y temperatura dentro de las tres referencias ingresadas.
+- **Rojo:** se supera un límite conocido o se activa una alarma lógica simulada.
+- **Ámbar:** reserva alcanzada o suministro aislado por la protección simulada.
+
+Las etiquetas explican el estado también sin depender del color. Si se supera
+una referencia conocida, se señala aunque falten las otras. Estos límites son
+una comparación visual y **no introducen un apagado automático** en el balance
+energético. El manómetro utiliza como escala la presión máxima ingresada; si no
+existe, usa la inicial y lo indica expresamente. Se conserva el valor numérico
+completo aunque la aguja llegue al tope de la escala.
+
+El estado verde significa únicamente que las dos variables están dentro de las
+referencias ingresadas. No significa «cilindro en perfectas condiciones»: no se
+evalúan material, fatiga, daños, inspecciones ni pruebas físicas. Consulta el
+contexto de [pruebas de tanques de hidrógeno del DOE](https://www.energy.gov/cmei/fuels/high-pressure-hydrogen-tank-testing).
+Las partículas no representan velocidad molecular y la salida representa un
+aislamiento lógico, sin simular una válvula física o una fuga. El informe JSON
+conserva los parámetros efectivos, su procedencia y `inputs.cylinder_reference`.
+
+En **Simulador visual → Flujo de energía** puedes ver el tanque, la celda PEM, el bus eléctrico,
 el banco de supercapacitores y las cargas del vehículo. Las flechas muestran el
 sentido del intercambio: el banco aporta al bus al descargar y recibe del bus
 al cargar. Las líneas discontinuas indican que no hay intercambio. El esquema
@@ -73,6 +114,11 @@ al escenario y luego pulsa **Ejecutar simulación**:
 | Configuración JSON (opcional) | Archivo con parámetros completos siguiendo la estructura de `data/example.json`; permite modificar los valores avanzados descritos abajo. | Opcional. |
 | Masa total [kg] | Masa total simulada del vehículo, incluyendo lo que se haya decidido representar como carga. | Siempre; reemplaza la masa del JSON si se carga uno. |
 | Potencia bruta máxima PEM [W] | Límite de potencia eléctrica bruta de la celda PEM. | Siempre; reemplaza la potencia PEM del JSON si se carga uno. |
+| Volumen del cilindro [L] | Volumen interno del tanque. | Opcional; vacío conserva el JSON. |
+| Presión inicial del cilindro [bar absolutos] | Presión del tanque al comenzar; debe superar la reserva. | Opcional; vacío conserva el JSON. |
+| Presión de reserva [bar absolutos] | Presión a la que el modelo deja de extraer H₂. | Opcional; vacío conserva el JSON. |
+| Temperatura del cilindro [°C] | Temperatura constante asumida; se convierte a K. | Opcional; vacío conserva el JSON. |
+| Presión máxima y temperaturas de referencia | Límites proporcionados por el usuario para comparar el estado visual. | Opcionales; no modifican el modelo físico ni certifican el cilindro. |
 | Pendiente para velocidad constante [%] | Inclinación de la vía; positiva es subida y negativa bajada. | Solo para velocidad constante. |
 | Velocidad constante [km/h] | Velocidad objetivo mantenida durante el escenario. | Solo para velocidad constante. |
 | Duración a velocidad constante [s] | Tiempo durante el que se mantiene esa velocidad. | Solo para velocidad constante. |
@@ -83,7 +129,8 @@ al escenario y luego pulsa **Ejecutar simulación**:
 Los campos muestran valores iniciales de ejemplo, no valores recomendados ni
 medidos. **Velocidad constante** supone que el vehículo ya está en movimiento;
 el CSV urbano ya incluye su propio perfil. Si se carga JSON, masa y potencia PEM
-se siguen tomando de los campos visibles, mientras el resto viene del archivo.
+se siguen tomando de los campos visibles; los campos opcionales del cilindro
+solo reemplazan el archivo cuando se rellenan. El resto viene del archivo.
 
 ### Parámetros avanzados del JSON
 

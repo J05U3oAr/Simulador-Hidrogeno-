@@ -1,6 +1,6 @@
 """Interfaz local. Ejecutar: python -m streamlit run app.py."""
 
-from dataclasses import replace
+from dataclasses import asdict, replace
 import json
 from pathlib import Path
 
@@ -9,7 +9,8 @@ import streamlit as st
 
 from simulador.config import load_config
 from simulador.comparison import compare
-from simulador.dashboard import render_metrics, render_visual
+from simulador.cylinder import CylinderReference
+from simulador.dashboard import render_cylinder_preview, render_metrics, render_visual
 from simulador.protection import Fault
 from simulador.reporting import csv_text, plot_png
 from simulador.route import Point, load_route
@@ -30,6 +31,21 @@ with st.sidebar:
         config_file = st.file_uploader("Configuración JSON (opcional)", type=["json"], help="Mismo formato que data/example.json. Los controles siguientes sustituyen algunos valores.")
         mass = st.number_input("Masa total [kg]", min_value=1.0, value=float(config.vehicle.mass_kg), step=5.0)
         power = st.number_input("Potencia bruta máxima PEM [W]", min_value=1.0, value=float(config.fuel_cell.gross_power_w), step=100.0)
+        with st.expander("Datos del cilindro", expanded=True):
+            st.caption("Deja un campo vacío para conservar el valor del JSON. La temperatura permanece constante durante la simulación.")
+            tank_volume = st.number_input("Volumen del cilindro [L]", min_value=0.001, value=None, step=1.0,
+                                          placeholder=f"Del JSON; ejemplo: {config.tank.volume_l:g} L", key="tank_volume")
+            tank_pressure = st.number_input("Presión inicial del cilindro [bar absolutos]", min_value=0.001, value=None, step=10.0,
+                                            placeholder=f"Del JSON; ejemplo: {config.tank.initial_pressure_bar_abs:g} bar", key="tank_pressure")
+            tank_reserve = st.number_input("Presión de reserva [bar absolutos]", min_value=0.0, value=None, step=1.0,
+                                           placeholder=f"Del JSON; ejemplo: {config.tank.minimum_pressure_bar_abs:g} bar", key="tank_reserve")
+            tank_temperature = st.number_input("Temperatura del cilindro [°C]", min_value=-273.14, value=None, step=1.0,
+                                               placeholder=f"Del JSON; ejemplo: {config.tank.temperature_k - 273.15:.2f} °C", key="tank_temperature")
+        with st.expander("Límites de referencia del cilindro"):
+            st.caption("Introduce las referencias de la ficha técnica en las unidades indicadas. Vacío = desconocido. Se comparan valores; no se evalúa integridad física ni se activa un apagado por estos límites.")
+            pressure_limit = st.number_input("Presión máxima de referencia [bar absolutos]", min_value=0.001, value=None, step=10.0, key="cylinder_pressure_limit")
+            temperature_min = st.number_input("Temperatura mínima de referencia [°C]", min_value=-273.14, value=None, step=1.0, key="cylinder_temperature_min")
+            temperature_max = st.number_input("Temperatura máxima de referencia [°C]", min_value=-273.14, value=None, step=1.0, key="cylinder_temperature_max")
         grade = st.number_input("Pendiente para velocidad constante [%]", min_value=-30.0, max_value=30.0, value=0.0)
         speed = st.number_input("Velocidad constante [km/h]", min_value=0.0, max_value=150.0, value=20.0)
         duration = st.number_input("Duración a velocidad constante [s]", min_value=1.0, max_value=86400.0, value=600.0)
@@ -44,10 +60,17 @@ if submitted:
             # Lectura en memoria: no se guardan archivos subidos en el servidor.
             from simulador.config import config_from_dict
             config, provenance = config_from_dict(json.loads(config_file.getvalue()))
+        tank_overrides = {key: value for key, value in {
+            "volume_l": tank_volume, "initial_pressure_bar_abs": tank_pressure,
+            "minimum_pressure_bar_abs": tank_reserve,
+            "temperature_k": tank_temperature + 273.15 if tank_temperature is not None else None,
+        }.items() if value is not None}
         config = replace(config, vehicle=replace(config.vehicle, mass_kg=mass),
-                         fuel_cell=replace(config.fuel_cell, gross_power_w=power)).validate()
+                         fuel_cell=replace(config.fuel_cell, gross_power_w=power),
+                         tank=replace(config.tank, **tank_overrides)).validate()
+        cylinder_reference = CylinderReference(pressure_limit, temperature_min, temperature_max).validate()
         provenance = {key: dict(value) for key, value in provenance.items()}
-        for key in ("vehicle.mass_kg", "fuel_cell.gross_power_w"):
+        for key in ("vehicle.mass_kg", "fuel_cell.gross_power_w", *(f"tank.{name}" for name in tank_overrides)):
             provenance[key].update(status="supuesto", source="Valor introducido en la interfaz; confirmar con medición o ficha técnica.")
         if route_name == "Urbano de ejemplo":
             route = load_route(ROOT / "data/routes/urban.csv")
@@ -62,6 +85,7 @@ if submitted:
                 "Parada de emergencia": "emergency_stop"}[fault_label]
         fault = Fault(kind, fault_time if kind != "none" else 0)
         result = simulate(config, route, step, fault)
+        result.inputs["cylinder_reference"] = asdict(cylinder_reference)
         st.session_state["simulation"] = (result, provenance)
         st.session_state.pop("comparison", None)
         st.session_state.pop("simulation_error", None)
@@ -75,6 +99,8 @@ if "simulation_error" in st.session_state:
     st.error(f"Revisa el escenario: {st.session_state['simulation_error']}")
 
 if "simulation" not in st.session_state:
+    if "simulation_error" not in st.session_state:
+        render_cylinder_preview(config)
     st.info("Configura un escenario y pulsa «Ejecutar simulación» para ver los resultados.")
     st.caption("El CSV urbano incluye aceleraciones, paradas y pendientes. Velocidad constante supone que el vehículo ya está en movimiento.")
 else:
