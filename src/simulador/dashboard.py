@@ -3,7 +3,7 @@
 import streamlit as st
 
 from simulador.config import Config, Tank
-from simulador.cylinder import CylinderReference, cylinder_scene, initial_cylinder_row
+from simulador.cylinder import CylinderReference, cylinder_scene, cylinder_status, initial_cylinder_row
 from simulador.simulation import Result
 from simulador.visualization import SERIES_GROUPS, energy_diagram, series_table, summary_table
 
@@ -13,6 +13,32 @@ def render_cylinder_preview(config: Config):
     st.caption("Vista de ejemplo antes de ejecutar. Introduce los datos y referencias del cilindro en la barra lateral y pulsa «Ejecutar simulación» para aplicarlos.")
     animate = st.toggle("Animar partículas y flujo", value=True, key="cylinder_motion")
     st.html(cylinder_scene(config.tank, initial_cylinder_row(config.tank), CylinderReference(), animate=animate))
+
+
+def render_safety_summary(result: Result):
+    st.subheader("Alertas del recorrido")
+    tank = Tank(**result.inputs["parameters"]["tank"])
+    reference = CylinderReference(**result.inputs.get("cylinder_reference", {}))
+    # En el recorrido se conserva la temperatura y la presión solo disminuye.
+    status = cylinder_status(tank, tank.initial_pressure_bar_abs, reference)
+    render_status = st.warning if status.code == "outside" else st.info
+    render_status(f"**Cilindro · {status.label}.** {status.detail}")
+
+    alarm = next((event for event in result.events if event["code"] == "alarm"), None)
+    shutdown = next((event for event in result.events if event["code"] == "shutdown"), None)
+    if alarm is not None:
+        label = "Alarma simulada de H₂" if alarm["detail"] == "hydrogen_alarm" else "Parada de emergencia simulada"
+        message = f"**{label}** a los {alarm['time_s']:g} s."
+        if shutdown is not None:
+            message += f" Suministro aislado a los {shutdown['time_s']:g} s."
+        else:
+            message += " El recorrido terminó antes del aislamiento."
+        st.warning(message)
+    elif result.inputs["fault"]["kind"] != "none":
+        st.info("El recorrido terminó antes de que se registrara la alarma del evento de prueba.")
+
+    st.caption("Una fuga de H₂ puede causar incendio o explosión si el gas se acumula y se enciende. "
+               "El modelo compara referencias y reproduce alarmas de prueba. No predice fugas ni rupturas del cilindro.")
 
 
 def render_visual(result: Result):

@@ -26,6 +26,7 @@ def test_app_runs_default_scenario_and_reports_bad_parameters():
     assert app.metric[0].label == "Energía de la PEM al bus"
     assert app.metric[0].value == "28.87 Wh"
     assert app.success
+    assert any("Sin límites de referencia" in info.value for info in app.info)
     app.number_input[1].set_value(10)
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
     assert not app.exception
@@ -117,6 +118,11 @@ def test_cylinder_inputs_drive_scene_and_are_saved_with_provenance():
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
     assert not app.exception
     assert any('data-state="outside"' in element.proto.body for element in app.get("html"))
+    assert any("Fuera de los límites ingresados" in warning.value for warning in app.warning)
+    next(box for box in app.selectbox if box.label == "Evento de prueba").set_value("Alarma de hidrógeno")
+    next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
+    assert any("Alarma simulada de H₂" in warning.value and "Suministro aislado" in warning.value
+               for warning in app.warning)
     app.number_input(key="cylinder_temperature_min").set_value(70)
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
     assert not app.exception

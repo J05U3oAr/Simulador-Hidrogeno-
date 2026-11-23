@@ -10,7 +10,7 @@ import streamlit as st
 from simulador.config import load_config
 from simulador.comparison import compare
 from simulador.cylinder import CylinderReference
-from simulador.dashboard import render_cylinder_preview, render_metrics, render_visual
+from simulador.dashboard import render_cylinder_preview, render_metrics, render_safety_summary, render_visual
 from simulador.interactive_lab import render_laboratory
 from simulador.protection import Fault
 from simulador.reporting import csv_text, plot_png
@@ -123,6 +123,7 @@ else:
     metrics[1].metric("Distancia objetivo [km]", f"{summary['distance_target_km']:.2f}")
     metrics[2].metric("Hidrógeno consumido [g]", f"{summary['hydrogen_used_kg'] * 1000:.2f}")
     metrics[3].metric("Energía no cubierta [Wh]", f"{summary['unserved_energy_wh']:.3f}")
+    render_safety_summary(result)
     visual, metrics_tab, charts, events, inputs, sensitivity, downloads = st.tabs([
         "Simulador visual", "Métricas y tablas", "Energía y recorrido", "Eventos", "Datos usados", "Comparación", "Descargas"])
     frame = pd.DataFrame(result.rows).set_index("time_s")

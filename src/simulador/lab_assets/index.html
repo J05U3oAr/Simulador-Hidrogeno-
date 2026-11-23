@@ -10,13 +10,13 @@
   <div class="workspace">
     <section class="experiment" aria-label="Zona de experimentación">
       <div class="scene-header"><span class="eyebrow">GAS COMPRIMIDO · MODELO pV = ZmRT</span><span id="state-badge" class="badge" role="status">Sin límites de referencia</span></div>
+      <p id="status-detail" class="explanation"></p>
       <div id="exploration">
         <div class="canvas-wrap"><canvas id="scene" width="1000" height="560" role="img" aria-label="Cilindro de H₂, moléculas en movimiento, manómetro y salida hacia la PEM">Tu navegador no admite Canvas. Consulta las lecturas y mediciones debajo.</canvas>
           <button id="valve-on-scene" class="valve-target" aria-label="Abrir salida del cilindro" aria-pressed="false">Abrir salida</button>
           <span class="scene-hint">Toca la salida o mueve un control del panel</span>
         </div>
         <div class="readings" aria-label="Instrumentos"><div><span>Presión absoluta</span><strong id="pressure-reading">—</strong></div><div><span>Temperatura</span><strong id="temperature-reading">—</strong></div><div><span>H₂ restante</span><strong id="mass-reading">—</strong></div><div><span>Caudal efectivo</span><strong id="flow-reading">—</strong></div></div>
-        <p id="status-detail" class="explanation"></p>
       </div>
       <section id="measurements" hidden aria-label="Mediciones del laboratorio">
         <div class="measurement-heading"><div><h2>¿Cómo cambia la presión?</h2><p>Temperatura y volumen actúan sobre el gas que queda.</p></div><button id="export-csv">Descargar CSV</button></div>

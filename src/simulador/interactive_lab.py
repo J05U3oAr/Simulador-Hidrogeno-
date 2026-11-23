@@ -30,6 +30,7 @@ def render_laboratory(config: Config):
     import streamlit.components.v1 as components
 
     document = laboratory_html(config)
+    st.caption("Para ver la energía eléctrica que entrega la celda PEM, selecciona «Recorrido y métricas» y ejecuta una simulación.")
     components.html(document, height=1000, scrolling=True)
     st.download_button("Descargar laboratorio para abrir sin conexión", document,
                        "laboratorio_hidrogeno.html", "text/html")

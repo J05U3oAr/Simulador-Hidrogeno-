@@ -26,6 +26,10 @@ Abre `http://127.0.0.1:8501`. La vista inicial es **Laboratorio interactivo**:
 puedes manipular el cilindro directamente, sin cargar JSON ni ejecutar antes un
 recorrido. Para el modelo del vehículo, selecciona **Recorrido y métricas**,
 configura el escenario y pulsa **Ejecutar simulación**.
+Encima de las pestañas aparece la energía eléctrica total que la PEM entregó
+al bus durante el recorrido (Wh), el estado del cilindro frente a las
+referencias ingresadas y los tiempos de detección y aislamiento si se simula
+un evento de protección.
 Sus pestañas muestran el simulador visual, métricas y tablas,
 energía, eventos, parámetros usados, comparación y descargas. El formulario
 aplica masa, potencia PEM y los campos del cilindro que rellenes sobre el JSON
