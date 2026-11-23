@@ -13,10 +13,13 @@ def test_interval_distance_and_partial_last_step():
 
 
 def test_cruise_is_feasible_and_has_balanced_power(config):
-    result = simulate(config, [Point(0, 20, 0), Point(60, 20, 0)])
+    result = simulate(config, [Point(0, 20, 0), Point(60.3, 20, 0)])
     assert result.summary["target_feasible_in_model"]
-    assert result.summary["distance_target_km"] == pytest.approx(1 / 3)
+    assert result.summary["distance_target_km"] == pytest.approx(20 * 60.3 / 3600)
     assert result.summary["max_balance_error_w"] < 1e-9
+    energy_wh = sum(row["fuel_cell_bus_power_w"] * row["dt_s"] for row in result.rows) / 3600
+    assert energy_wh > 0
+    assert result.summary["fuel_cell_bus_energy_wh"] == pytest.approx(energy_wh)
 
 
 def test_motor_limit_marks_target_infeasible(config):

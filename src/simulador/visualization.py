@@ -43,6 +43,7 @@ def summary_table(result: Result) -> pd.DataFrame:
         ("Distancia objetivo", summary["distance_target_km"], "km"),
         ("Hidrógeno consumido", summary["hydrogen_used_kg"] * 1000, "g"),
         ("Energía solicitada", summary["requested_energy_wh"], "Wh"),
+        ("Energía entregada por la PEM al bus", summary["fuel_cell_bus_energy_wh"], "Wh"),
         ("Energía no cubierta", summary["unserved_energy_wh"], "Wh"),
         ("Pérdidas aguas arriba del bus", summary["upstream_losses_wh"], "Wh"),
         ("Tensión mínima del banco", summary["minimum_capacitor_voltage_v"], "V"),

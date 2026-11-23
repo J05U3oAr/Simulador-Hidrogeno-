@@ -22,7 +22,9 @@ def test_app_runs_default_scenario_and_reports_bad_parameters():
     assert not app.exception
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()
     assert not app.exception
-    assert len(app.metric) == 3
+    assert len(app.metric) == 4
+    assert app.metric[0].label == "Energía de la PEM al bus"
+    assert app.metric[0].value == "28.87 Wh"
     assert app.success
     app.number_input[1].set_value(10)
     next(button for button in app.button if button.label == "Ejecutar simulación").click().run()

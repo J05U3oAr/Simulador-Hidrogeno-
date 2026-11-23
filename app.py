@@ -117,10 +117,12 @@ else:
         st.success("Demanda objetivo cubierta en este modelo y con estos supuestos.")
     else:
         st.error("El sistema no cubre toda la demanda objetivo. La distancia mostrada pertenece al recorrido solicitado.")
-    metrics = st.columns(3)
-    metrics[0].metric("Distancia objetivo [km]", f"{summary['distance_target_km']:.2f}")
-    metrics[1].metric("Hidrógeno consumido [g]", f"{summary['hydrogen_used_kg'] * 1000:.2f}")
-    metrics[2].metric("Energía no cubierta [Wh]", f"{summary['unserved_energy_wh']:.3f}")
+    metrics = st.columns(4)
+    metrics[0].metric("Energía de la PEM al bus", f"{summary['fuel_cell_bus_energy_wh']:.2f} Wh",
+                      help="Energía eléctrica total que la celda entregó al bus durante el recorrido.")
+    metrics[1].metric("Distancia objetivo [km]", f"{summary['distance_target_km']:.2f}")
+    metrics[2].metric("Hidrógeno consumido [g]", f"{summary['hydrogen_used_kg'] * 1000:.2f}")
+    metrics[3].metric("Energía no cubierta [Wh]", f"{summary['unserved_energy_wh']:.3f}")
     visual, metrics_tab, charts, events, inputs, sensitivity, downloads = st.tabs([
         "Simulador visual", "Métricas y tablas", "Energía y recorrido", "Eventos", "Datos usados", "Comparación", "Descargas"])
     frame = pd.DataFrame(result.rows).set_index("time_s")

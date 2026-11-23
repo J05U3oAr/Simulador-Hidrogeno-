@@ -33,6 +33,7 @@ def simulate(config: Config, route: list[Point], max_step_s: float = 1,
     events = [event for event in schedule if event["time_s"] <= route[-1].time_s]
     previous_flags = set()
     distance_m = unserved_j = demand_j = losses_j = 0.0
+    fuel_cell_bus_energy_j = 0.0
     for interval in intervals(route, max_step_s, [e["time_s"] for e in schedule]):
         dt = interval.dt_s
         mechanical = mechanical_demand(config.vehicle, interval.speed_m_s,
@@ -60,6 +61,7 @@ def simulate(config: Config, route: list[Point], max_step_s: float = 1,
         previous_flags = flags
         distance_m += interval.speed_m_s * dt
         demand_j += requested * dt
+        fuel_cell_bus_energy_j += step.fuel_cell_bus_power_w * dt
         unserved_j += missing * dt
         losses_j += step.loss_power_w * dt
         rows.append({
@@ -88,6 +90,7 @@ def simulate(config: Config, route: list[Point], max_step_s: float = 1,
         "duration_s": rows[-1]["time_s"], "distance_target_km": distance_m / 1000,
         "hydrogen_used_kg": initial_mass - mass,
         "requested_energy_wh": demand_j / 3600,
+        "fuel_cell_bus_energy_wh": fuel_cell_bus_energy_j / 3600,
         "unserved_energy_wh": unserved_j / 3600,
         "upstream_losses_wh": losses_j / 3600,
         "target_feasible_in_model": unserved_j < 1e-6,
